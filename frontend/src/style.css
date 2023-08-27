@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Reset --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+}
+
+html {
+  color-scheme: dark light;
+}
+
+body {
+  min-height: 100vh;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+/* --- Reset --- */
+
+/* --- Variables --- */
+:root {
+  --bg-img-layer: -10;
+  --nav-layer: 10;
+}
+/* --- Variables --- */
+ body{
+  background-image: url(img/background2.jpg);
+  display: flex;
+  column-gap: 3rem;
+ }
+
+ #list {
+  background-color: aquamarine;
+ }
+
+ #selected-pizza {
+  background-color: blueviolet;
+ }
+ #order {
+  background-color: chocolate;
+ }
