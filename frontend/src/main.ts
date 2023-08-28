@@ -20,7 +20,7 @@ type Order = {
   }[]
 }
 
-const BASE_URL = "http://localhost:3333/pizzas"
+const BASE_URL = "http://localhost:3333/pizza"
 
 let pizzas: Pizza[];
 let amount = 0;
@@ -95,7 +95,6 @@ const renderDetails = (event: Event) =>  {
     document.getElementById("add")?.addEventListener("click", function handleClick(event) {
       loadOrder(selectedPizzaId)
       orderDetails(selectedPizzaId)
-      
     });
     } 
     
@@ -109,6 +108,7 @@ const changeAmount = () => {
 }
 
 const loadOrder = (selectedPizzaId : number) => {
+  
   if (order) {
     order = {
       name: order.name,
@@ -120,22 +120,32 @@ const loadOrder = (selectedPizzaId : number) => {
   } else {
     order = {name: "", zipCode: "", items : [{id:selectedPizzaId, amount}]}
   }
+  
 }
 
 const orderDetails = (selectedPizzaId:number) =>  {
-      const orderContent = `
+  
+  let name = localStorage.getItem("name");
+  let zipCode = localStorage.getItem("zipCode");
+    const orderContent = `
     <div id=order2>
     <h1>Your order</h1>
-    ${order.items.map(order => `<p>${order.amount} x ${pizzas.find( pizza => order.id === pizza.id)!.name} <button id ="delete-button-${order.id}">x</button></p>`)}
-    <input placeholder="Name">
-    <input placeholder="Zip code">
-    <button>Send order</button>
+    ${order.items.map(order => `<p id="details">${order.amount} x ${pizzas.find( pizza => order.id === pizza.id)!.name} </p><button id ="delete-button-${order.id}">x</button>`)}
+    <input id="name" placeholder="Name" value="${name}">
+    <input id="zip-code" placeholder="Zip code" value="${zipCode}">
+    <button id="send-order">Send order</button>
     </div>
     `
     document.getElementById("order")!.innerHTML = orderContent
+    localStorage.setItem("name",(document.getElementById("name") as HTMLInputElement).value);
+    localStorage.setItem("zipCode", (document.getElementById("zip-code") as HTMLInputElement).value);
     document.getElementById("delete-button-" + selectedPizzaId)?.addEventListener("click", function handleClick(event){
       remove(event, selectedPizzaId)
     })
+    document.getElementById("send-order")?.addEventListener("click", sendOrder)
+    console.log(document.getElementById("details"))
+    
+    
 }
 
 const remove = (event: Event, selectedPizzaId:number) => {
@@ -152,3 +162,27 @@ const remove = (event: Event, selectedPizzaId:number) => {
 
    orderDetails(selectedPizzaId)
 }
+
+
+const sendOrder = ( ev: MouseEvent) =>  {
+  const finalItems = (document.getElementById("details") as HTMLParagraphElement).innerText;
+  const name = (document.getElementById("name") as HTMLInputElement).value;
+  const zipCode = (document.getElementById("zip-code") as HTMLInputElement).value
+
+  axios.post(BASE_URL.concat("/order"), {
+      finalItems: finalItems,
+      name: name,
+      zipCode: zipCode
+    })
+    .then((response) => {
+      console.log(response);
+     
+    });
+   
+};
+
+
+
+
+
+
