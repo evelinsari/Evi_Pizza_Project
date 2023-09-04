@@ -17,7 +17,11 @@ type Order = {
   items: {
     id: number,
     amount: number
-  }[]
+  }[],
+  address: string,
+  email: string,
+  phone: string
+
 }
 
 const BASE_URL = "http://localhost:3333"
@@ -56,14 +60,20 @@ const updateOrderWithItem = function() {
     items : [
       ...order.items.filter(item => item.id !== selectedPizza!.id),
     { id: selectedPizza!.id, amount}
-      ]
+      ],
+    address: order.address,
+    email: order.email,
+    phone: order.phone
     } : {
     name: "", 
     zipCode: "", 
     items : [
       {id:selectedPizza!.id, amount}
-    ]
-  }
+    ],
+    address: "",
+    email: "",
+    phone: ""
+    }
 }
 
 const updateAmount = function(num: number) {
@@ -74,7 +84,11 @@ const removeItemFromOrder = function(id:number) {
   order = {
     name: order!.name,
     zipCode: order!.zipCode,
-    items : order!.items.filter(item => item.id !== id)
+    items : order!.items.filter(item => item.id !== id),
+    address: order!.address,
+    email: order!.email,
+    phone: order!.phone
+
   }
 }
 
@@ -94,13 +108,16 @@ function renderList(pizzas: Pizza[]) {
 
 const renderSelected = function(pizza: Pizza) {
   const content = `
-      <div>
-        <h1>${pizza.name}</h1>
-        <p class="bg-red-600">${pizza.ingredients}</p>
-        <img src="${pizza.url}" />
-        <input type="number" id="amount"/>
-        <button id="add">Add to order</button>
-      </div>
+      <div class="card card-compact w-96 bg-base-100 shadow-xl">
+        <figure><img src="${pizza.url}" alt="pizza" /></figure>
+        <div class="card-body">
+          <h2 class="card-title">${pizza.name}</h2>
+          <p>${pizza.ingredients}</p>
+          <div class="card-actions justify-end">
+            <button id="add" class="btn btn-primary">Add to order</button>
+          </div>
+        </div>
+      </div> 
     `
 
     document.getElementById("selected-pizza")!.innerHTML = content
@@ -119,6 +136,9 @@ const renderOrder = function(order: Order) {
       )}
       <input id="name" placeholder="Name" value="${order.name}">
       <input id="zipCode" placeholder="Zip code" value="${order.zipCode}">
+      <input id="address" placeholder="Address" value="${order.address}">
+      <input id="email" placeholder="Email" value="${order.email}">
+      <input id="phone" placeholder="Phone" value="${order.phone}">
       <button id="sendOrder">Send order</button>
     </div>
   `
@@ -132,6 +152,9 @@ const renderOrder = function(order: Order) {
   (document.getElementById("sendOrder") as HTMLButtonElement).addEventListener("click", sendOrder);
   (document.getElementById("name") as HTMLButtonElement).addEventListener("change", addNameDetails);
   (document.getElementById("zipCode") as HTMLButtonElement).addEventListener("change", addZipDetails);
+  (document.getElementById("address") as HTMLButtonElement).addEventListener("change", addAddressDetails);
+  (document.getElementById("email") as HTMLButtonElement).addEventListener("change", addEmailDetails);
+  (document.getElementById("phone") as HTMLButtonElement).addEventListener("change", addPhoneDetails);
 
 }
 
@@ -170,7 +193,7 @@ const removeListener = function(event: Event) {
 
 const sendOrder = async function() {
   isSending = true
-  const response = await axios.post(BASE_URL + "/api/order", JSON.stringify(order), {
+  const response = await axios.post(BASE_URL + "/pizza/order", JSON.stringify(order), {
   headers: {
     "Content-Type": "application/json"
   }
@@ -184,6 +207,18 @@ const addNameDetails = (event:Event) => {
 
 const addZipDetails = (event:Event) => {
   order!.zipCode = (event.target as HTMLInputElement).value
+}
+
+const addAddressDetails = (event:Event) => {
+  order!.address = (event.target as HTMLInputElement).value
+}
+
+const addEmailDetails = (event:Event) => {
+  order!.email = (event.target as HTMLInputElement).value
+}
+
+const addPhoneDetails = (event:Event) => {
+  order!.phone = (event.target as HTMLInputElement).value
 }
 
 init()
