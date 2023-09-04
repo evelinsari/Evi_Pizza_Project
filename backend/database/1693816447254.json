@@ -1,0 +1,14 @@
+{
+  "name": "",
+  "zipCode": "",
+  "items": [
+    {
+      "id": 2,
+      "amount": 3
+    },
+    {
+      "id": 6,
+      "amount": 3
+    }
+  ]
+}
