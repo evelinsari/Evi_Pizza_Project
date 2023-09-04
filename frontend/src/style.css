@@ -40,8 +40,6 @@ video {
 /* --- Variables --- */
  body{
   background-image: url(img/background2.jpg);
-  display: flex;
-  column-gap: 3rem;
  }
 
  #list {

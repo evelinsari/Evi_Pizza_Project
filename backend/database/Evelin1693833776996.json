@@ -1,0 +1,13 @@
+{
+  "name": "Evelin",
+  "zipCode": "2322",
+  "items": [
+    {
+      "id": 1,
+      "amount": 3
+    }
+  ],
+  "address": "Kopácsi",
+  "email": "teszt@gmail.com",
+  "phone": "+3630123456"
+}

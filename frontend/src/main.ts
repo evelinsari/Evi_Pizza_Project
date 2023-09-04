@@ -21,7 +21,6 @@ type Order = {
   address: string,
   email: string,
   phone: string
-
 }
 
 const BASE_URL = "http://localhost:3333"
@@ -108,13 +107,14 @@ function renderList(pizzas: Pizza[]) {
 
 const renderSelected = function(pizza: Pizza) {
   const content = `
-      <div class="card card-compact w-96 bg-base-100 shadow-xl">
+      <div card bg-primary text-primary-content shadow-xl basis-[240px] flex-grow flex-shrink-0">
         <figure><img src="${pizza.url}" alt="pizza" /></figure>
         <div class="card-body">
           <h2 class="card-title">${pizza.name}</h2>
           <p>${pizza.ingredients}</p>
           <div class="card-actions justify-end">
-            <button id="add" class="btn btn-primary">Add to order</button>
+            <input type="number" id="amount"/>
+            <button id="add" class="btn btn-success">Add to order</button>
           </div>
         </div>
       </div> 
