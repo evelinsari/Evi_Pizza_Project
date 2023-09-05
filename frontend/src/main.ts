@@ -107,7 +107,7 @@ function renderList(pizzas: Pizza[]) {
 
 const renderSelected = function(pizza: Pizza) {
   const content = `
-      <div card bg-primary text-primary-content shadow-xl basis-[240px] flex-grow flex-shrink-0">
+      <div class="card card-compact w-96 bg-base-100 shadow-xl">
         <figure><img src="${pizza.url}" alt="pizza" /></figure>
         <div class="card-body">
           <h2 class="card-title">${pizza.name}</h2>
@@ -193,11 +193,11 @@ const removeListener = function(event: Event) {
 
 const sendOrder = async function() {
   isSending = true
-  const response = await axios.post(BASE_URL + "/pizza/order", JSON.stringify(order), {
+  const response = await axios.post(BASE_URL + "/pizza/order",  {
   headers: {
     "Content-Type": "application/json"
   }
-  })
+  })                
   isSending = false
 }
 
