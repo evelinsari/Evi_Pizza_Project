@@ -66,6 +66,33 @@ server.post('/pizza/order', async (req: Request, res: Response) => {
 })
 
 server.post("/admin/addpizza",async (req: Request, res: Response) => {
+  /* const pictureUploadPath = __dirname + "/../backend/data/" + "profile.jpg";
+
+	if (req.files) {
+		const uploadedPicture = req.files.picture;
+		uploadedPicture.mv(pictureUploadPath, (err) => {
+			if (err) {
+				console.log(err);
+				return res.status(500).send(err);
+			}
+		});
+	}
+
+	const fileData = JSON.parse(JSON.stringify(req.body));
+	fileData.picture = "/profile.jpg";
+	const fileDataString = JSON.stringify(fileData, null, 2);
+	const uploadPath = __dirname + "/../backend/data/" + "profile.json";
+
+	fs.writeFileSync(uploadPath, fileDataString, (err) => {
+		if (err) {
+			console.log(err);
+			return res.status(500).send(err);
+		}
+	});
+
+	return res.send(fileDataString); */
+
+
   const result = PizzaSchema.safeParse(req.body)
   if (!result.success)
     return res.sendStatus(400)
