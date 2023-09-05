@@ -26,6 +26,12 @@ server.get("/pizzas", async (request: Request, response: Response) => {
 })
 
 server.post('/pizza/order', async (req: Request, res: Response) => {
+  console.log("headers: " + JSON.stringify(req.headers))
+  console.log("url: " + req.url)
+  console.log("body: " + JSON.stringify(req.body))    
+  console.log("params: " + JSON.stringify(req.params))
+  console.log("query: " + JSON.stringify(req.query))
+  console.log("method: " + req.method)
   const fileData = req.body
   // zod
   try {
