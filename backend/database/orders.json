@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Fodor Péter",
+    "zipCode": "2360",
+    "items": [
+      {
+        "id": 6,
+        "amount": 3
+      }
+    ],
+    "address": "Táncsics Mihály utca 100",
+    "email": "fodi_peti@hotmail.com",
+    "phone": "+36306847957"
+  },
+  {
+    "name": "Evelin",
+    "zipCode": "1234",
+    "items": [
+      {
+        "id": 1,
+        "amount": 2
+      }
+    ],
+    "address": "eeee",
+    "email": "eee",
+    "phone": "1234567",
+    "status": true
+  }
+]

@@ -23,6 +23,19 @@ const PizzaSchema = z.object ({
 
 type Pizza= z.infer<typeof PizzaSchema>
 
+type Order = {
+  name: string,
+  zipCode: string,
+  items: {
+    id: number,
+    amount: number
+  }[],
+  address: string,
+  email: string,
+  phone: string,
+  status?: boolean
+}
+
 server.get("/pizzas", async (request: Request, response: Response) => {
 
   const pizzas = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
@@ -36,23 +49,20 @@ server.post('/pizza/order', async (req: Request, res: Response) => {
   console.log("params: " + JSON.stringify(req.params))
   console.log("query: " + JSON.stringify(req.query))
   console.log("method: " + req.method)
-  const fileData = req.body
+  const fileData: Order = req.body
+  fileData.status = true
   // zod
   
   try {
-    const fileDataString = JSON.stringify(fileData, null, 2); 
-    
-    const uploadPath = __dirname + '/../database/' + `${req.body.name.split(" ").join("") + new Date().getTime()}.json`
-    console.log(uploadPath)
-    console.log(fileDataString)
-    fs.writeFileSync(uploadPath, fileDataString)
+    const orders: Order [] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
+    orders.push(fileData)
+    fs.writeFileSync('./database/orders.json', JSON.stringify(orders, null, 2), "utf-8")
 
-    res.send(fileDataString)
+    res.send(fileData)
   } catch (error) {
     console.error('Error writing to file:', error)
     res.status(500).send('Error writing to file')
   }
-
 })
 
 server.post("/admin/addpizza",async (req: Request, res: Response) => {
