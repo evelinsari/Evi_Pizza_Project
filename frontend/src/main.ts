@@ -193,7 +193,7 @@ const removeListener = function(event: Event) {
 
 const sendOrder = async function() {
   isSending = true
-  const response = await axios.post(BASE_URL + "/pizza/order",  {
+  const response = await axios.post(BASE_URL + "/pizza/order", JSON.stringify(order),  {
   headers: {
     "Content-Type": "application/json"
   }

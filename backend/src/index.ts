@@ -3,6 +3,7 @@ import type { Request, Response } from "express"
 import cors from "cors"
 import fs from "fs"
 import { z } from "zod"
+import { json } from "stream/consumers"
 
 
 const server = express()
@@ -12,12 +13,15 @@ server.use(express.static("database"))
 server.use(express.json())
 
 const PizzaSchema = z.object ({
-  id: z.string(),
+  id: z.number(),
   name: z.string(),
   ingredients: z.string().array(),
   url: z.string(),
-}).array()
+  status: z.boolean()
+})
 
+
+type Pizza= z.infer<typeof PizzaSchema>
 
 server.get("/pizzas", async (request: Request, response: Response) => {
 
@@ -34,10 +38,13 @@ server.post('/pizza/order', async (req: Request, res: Response) => {
   console.log("method: " + req.method)
   const fileData = req.body
   // zod
+  
   try {
     const fileDataString = JSON.stringify(fileData, null, 2); 
-   
+    
     const uploadPath = __dirname + '/../database/' + `${req.body.name.split(" ").join("") + new Date().getTime()}.json`
+    console.log(uploadPath)
+    console.log(fileDataString)
     fs.writeFileSync(uploadPath, fileDataString)
 
     res.send(fileDataString)
@@ -45,6 +52,60 @@ server.post('/pizza/order', async (req: Request, res: Response) => {
     console.error('Error writing to file:', error)
     res.status(500).send('Error writing to file')
   }
+
+})
+
+server.post("/admin/addpizza",async (req: Request, res: Response) => {
+  const result = PizzaSchema.safeParse(req.body)
+  if (!result.success)
+    return res.sendStatus(400)
+  const pizza = result.data
+
+  const pizzas: Pizza[] = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
+  pizzas.push({id: pizza.id , name: pizza.name, ingredients: pizza.ingredients, url: pizza.url, status: pizza.status})
+
+  fs.writeFileSync('./database/pizzaList.json', JSON.stringify(pizzas, null, 2), "utf-8")
+
+  return res.send(pizzas)
+
+})
+
+server.delete("/admin/deletepizza/:id",async (req: Request, res: Response) => {
+  const id = +req.params.id
+
+  let pizzas: Pizza[] = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
+  pizzas = pizzas.filter(pizza => pizza.id !== id)
+
+  fs.writeFileSync('./database/pizzaList.json', JSON.stringify(pizzas, null, 2), "utf-8")
+
+  return res.send(pizzas)
+
+})
+
+server.patch("/admin/updatepizza/:id",async (req: Request, res: Response) => {
+  const id = +req.params.id
+
+  const result = PizzaSchema.safeParse(req.body)
+  if (!result.success)
+    return res.sendStatus(400)
+
+  let pizzas: Pizza[] = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
+  let pizzaToUpdate = pizzas.find(pizza => pizza.id === id)
+  console.log(pizzaToUpdate)
+  if (!pizzaToUpdate)
+    return res.sendStatus(404)
+
+  const updatedPizzas: Pizza[] = pizzas.map(pizza => pizza.id === id ? {
+    id: result.data.id,
+    name: result.data.name,
+    ingredients: result.data.ingredients,
+    url: result.data.url,
+    status: result.data.status
+  } : pizza)
+
+  fs.writeFileSync('./database/pizzaList.json', JSON.stringify(updatedPizzas, null, 2), "utf-8")
+
+  return res.send(updatedPizzas)
 
 })
 

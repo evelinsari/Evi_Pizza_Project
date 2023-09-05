@@ -1,42 +1,100 @@
-[{
-    "id":1,
-    "name" : "Pepperoni Pizza" ,
-    "ingredients":["tomato sauce","pepperoni","mozzarella","basil"],
-    "url" : "http://localhost:3333/img/pepperoni.jpg"
-},{
-    "id":2,
-    "name" : "Gorgonzola Pizza" ,
-    "ingredients":["gorgonzola", "grape", "parmesan"],
-    "url" : "http://localhost:3333/img/gorgonzola.jpg"
-},
-{
-    "id":3,
-    "name" : "Mushroom and Ricotta Pizza" ,
-    "ingredients":["shiitake mushrooms", "oyster mushrooms", "ricotta", "garlic"],
-    "url" : "http://localhost:3333/img/mushroom.jpg"
-},
-{
-    "id":4,
-    "name" : "Caramelised Onion and Bacon Pizza" ,
-    "ingredients":["bacon", "onion", "parmesan", "garlic", "rucola"],
-    "url" : "http://localhost:3333/img/bacon.jpg"
-},
-{
-    "id":5,
-    "name" : "Potato and Wild Mushroom Burrata Pizza" ,
-    "ingredients":["wild mushrooms", "potato", "burrata", "rosemary", "pesto"],
-    "url" : "http://localhost:3333/img/potato.jpg"
-},
-{
-    "id":6,
-    "name" : "Vegan Green Goddess Pizza" ,
-    "ingredients":["shallot", "pea", "garlic", "basil"],
-    "url" : "http://localhost:3333/img/vegan.jpg"
-}, 
-{
-    "id":7,
-    "name" : "Honey Goat Cheese Pizza" ,
-    "ingredients":["honey", "goat cheese", "mozzarella", "feta"],
-    "url" : "http://localhost:3333/img/goatcheese.jpg"
-}
+[
+  {
+    "id": 1,
+    "name": "Pepperoni Pizza",
+    "ingredients": [
+      "tomato sauce",
+      "pepperoni",
+      "mozzarella",
+      "basil"
+    ],
+    "url": "http://localhost:3333/img/pepperoni.jpg",
+    "status": true
+  },
+  {
+    "id": 2,
+    "name": "Gorgonzola Pizza",
+    "ingredients": [
+      "gorgonzola",
+      "grape",
+      "parmesan"
+    ],
+    "url": "http://localhost:3333/img/gorgonzola.jpg",
+    "status": true
+  },
+  {
+    "id": 3,
+    "name": "Mushroom and Ricotta Pizza",
+    "ingredients": [
+      "shiitake mushrooms",
+      "oyster mushrooms",
+      "ricotta",
+      "garlic"
+    ],
+    "url": "http://localhost:3333/img/mushroom.jpg",
+    "status": true
+  },
+  {
+    "id": 4,
+    "name": "Caramelised Onion and Bacon Pizza",
+    "ingredients": [
+      "bacon",
+      "onion",
+      "parmesan",
+      "garlic",
+      "rucola"
+    ],
+    "url": "http://localhost:3333/img/bacon.jpg",
+    "status": true
+  },
+  {
+    "id": 5,
+    "name": "Potato and Wild Mushroom Burrata Pizza",
+    "ingredients": [
+      "wild mushrooms",
+      "potato",
+      "burrata",
+      "rosemary",
+      "pesto"
+    ],
+    "url": "http://localhost:3333/img/potato.jpg",
+    "status": true
+  },
+  {
+    "id": 6,
+    "name": "Vegan Green Goddess Pizza",
+    "ingredients": [
+      "shallot",
+      "pea",
+      "garlic",
+      "basil"
+    ],
+    "url": "http://localhost:3333/img/vegan.jpg",
+    "status": true
+  },
+  {
+    "id": 7,
+    "name": "Honey Goat Cheese Pizza",
+    "ingredients": [
+      "honey",
+      "goat cheese",
+      "mozzarella",
+      "feta"
+    ],
+    "url": "http://localhost:3333/img/goatcheese.jpg",
+    "status": true
+  },
+  {
+    "id": 13,
+    "name": "Ham",
+    "ingredients": [
+      "tomato sauce",
+      "pepperoni",
+      "mozzarella",
+      "basil",
+      "ham"
+    ],
+    "url": "http://localhost:3333/img/ham.jpg",
+    "status": false
+  }
 ]
