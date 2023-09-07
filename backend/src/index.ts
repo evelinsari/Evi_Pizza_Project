@@ -3,14 +3,20 @@ import type { Request, Response } from "express"
 import cors from "cors"
 import fs from "fs"
 import { z } from "zod"
-import { json } from "stream/consumers"
-
+import { UploadedFile } from "express-fileupload"
+import fileUpload from "express-fileupload"
+import multer from 'multer' 
 
 const server = express()
-server.use(cors())
+/* const multer  = require('multer') */
 
+server.use(fileUpload())
+/* server.use(multer()) */
 server.use(express.static("database"))
 server.use(express.json())
+server.use(cors())
+
+const imgUrl = "http://localhost:3333/img/"
 
 const PizzaSchema = z.object ({
   id: z.number(),
@@ -65,47 +71,30 @@ server.post('/pizza/order', async (req: Request, res: Response) => {
   }
 })
 
+server.post("/admin/addpizzaimage", async (req: Request, res: Response) => {
+  if (!req.files) {
+    return res.sendStatus(400)
+  }
+  let file = req.files.file as UploadedFile
+  console.log(file)
+  file.mv('./database/img/' + file.name);
+  return res.sendStatus(200)
+})
+
 server.post("/admin/addpizza",async (req: Request, res: Response) => {
-  /* const pictureUploadPath = __dirname + "/../backend/data/" + "profile.jpg";
-
-	if (req.files) {
-		const uploadedPicture = req.files.picture;
-		uploadedPicture.mv(pictureUploadPath, (err) => {
-			if (err) {
-				console.log(err);
-				return res.status(500).send(err);
-			}
-		});
-	}
-
-	const fileData = JSON.parse(JSON.stringify(req.body));
-	fileData.picture = "/profile.jpg";
-	const fileDataString = JSON.stringify(fileData, null, 2);
-	const uploadPath = __dirname + "/../backend/data/" + "profile.json";
-
-	fs.writeFileSync(uploadPath, fileDataString, (err) => {
-		if (err) {
-			console.log(err);
-			return res.status(500).send(err);
-		}
-	});
-
-	return res.send(fileDataString); */
-
-
   const result = PizzaSchema.safeParse(req.body)
   if (!result.success)
     return res.sendStatus(400)
   const pizza = result.data
 
   const pizzas: Pizza[] = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
-  pizzas.push({id: pizza.id , name: pizza.name, ingredients: pizza.ingredients, url: pizza.url, status: pizza.status})
+  pizzas.push({id: pizza.id , name: pizza.name, ingredients: pizza.ingredients, url: imgUrl + pizza.url, status: pizza.status})
 
   fs.writeFileSync('./database/pizzaList.json', JSON.stringify(pizzas, null, 2), "utf-8")
 
   return res.send(pizzas)
-
 })
+
 
 server.delete("/admin/deletepizza/:id",async (req: Request, res: Response) => {
   const id = +req.params.id
