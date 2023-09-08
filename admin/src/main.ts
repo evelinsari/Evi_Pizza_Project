@@ -2,13 +2,7 @@ import "./style.css";
 import axios from "axios";
 import { z } from "zod";
 
-type Data = {
-    id: number,
-    name: string,
-    ingredients:string[],
-    url: string,
-    status?: boolean
-}
+
 const BASE_URL = "http://localhost:3333"
 
 const PizzaSchema = z.object ({
@@ -16,15 +10,20 @@ const PizzaSchema = z.object ({
     name: z.string(),
     ingredients: z.string().array(),
     url: z.string(),
+    status: z.boolean()
   })
 
   type Pizza= z.infer<typeof PizzaSchema>
+
 //----------------------------------------App state-----------------------------------------------------------------------//
 let pizzas: Pizza[];
 let selectedPizza: Pizza | null = null;
-let newPizza: Pizza |null = null;
+let newPizza: Pizza = {id:0, name:"", ingredients:[], url:"", status:true};
 let isLoading = false
 let isSending = false
+let image : FormData | null = null
+
+
 
 
 
@@ -43,8 +42,34 @@ const getAllPizza = async () => {
       pizzas = result.data;
   };
 
+const addTopping = (topping:string) => {
+    if (!newPizza.ingredients.includes(topping)) {
+        newPizza.ingredients.push(topping)
+    }
+}
 
+const removeTopping = (topping: string) => {
+    newPizza.ingredients = newPizza.ingredients.filter(element => element !== topping)
+}
 
+const changePizzaName = (name:string) => {
+    newPizza.name = name
+}
+
+const changeStatus = (status: boolean) => {
+    newPizza.status = status
+}
+
+const changeFile = (file: FileList) =>{
+    image = new FormData()
+    image.append("picture", file[0])
+    newPizza.url = file[0].name   
+    console.log(file[0].name)
+}
+
+const addId = () => {
+    newPizza.id = pizzas.reduce((maxIdPizza,currentPizza)=>maxIdPizza.id > currentPizza.id ? maxIdPizza : currentPizza).id + 1
+}
  //----------------------------------------Render-----------------------------------------------------------------------// 
 const renderList = () => {
     const container = document.getElementById("pizza-list")!
@@ -74,19 +99,85 @@ const renderList = () => {
     }
 }
 
+const renderAddPizzaButton = () => {
+    const container = document.getElementById("add-block")!
+    
+    const content = `
+    <button id="add-pizza" class="btn btn-secondary">Add New Pizza</button>
+      <div id="new-pizza">
+      </div>
+    `
+    container.innerHTML = content;
+
+    (document.getElementById("add-pizza") as HTMLButtonElement).addEventListener("click", renderAddPizza)
+}
+
 const renderAddPizza = () => {
    const container = document.getElementById("new-pizza")!
     const content = `
-        <button id="add-pizza" class="btn btn-secondary">Add New Pizza</button>
-
+ 
+        <div class="card w-96 bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="card-actions justify-end">
+                    <div class="form-control w-full max-w-xs">
+                        <input id= "pizza-name"type="text" placeholder="Pizza Name" class="input input-bordered w-full max-w-xs" />
+                        <div class="flex flex-row items-center">
+                            <select id ="topping-value" class="select select-secondary w-full max-w-xs">
+                                <option disabled selected>Toppings</option>
+                                <option>tomato</option>
+                                <option>bacon</option>
+                                <option>gorgonzola</option>
+                                <option>cheese</option>
+                                <option>basil</option>
+                                <option>feta</option>
+                            </select>
+                            <button id="add-topping" class="btn btn-xs">Add</button>
+                        </div>
+                        <ul id="toppings" class="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box">
+                        </ul>
+                        <div class="form-control w-52">
+                            <label class="cursor-pointer label">
+                                <span class="label-text">Status</span> 
+                                <div>
+                                    <input id="status" type="checkbox" class="toggle toggle-secondary" checked />  
+                                </div>
+                            </label>
+                        </div>
+                        <input id="image" type="file" class="file-input file-input-bordered file-input-info w-full max-w-xs" />
+                        <button id= "save" class="btn btn-success btn-xs">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     `
-    const paragraph = document.createElement("p")
-    paragraph.innerHTML = content
-    container.appendChild(paragraph);
 
-    (document.getElementById("add-pizza") as HTMLButtonElement).addEventListener("click", addListener)
+    container.innerHTML = content
+    ;
+
+    
+   (document.getElementById("add-topping") as HTMLButtonElement).addEventListener("click", addToppingListener);
+   (document.getElementById("pizza-name") as HTMLInputElement).addEventListener("change", nameListener);
+   (document.getElementById("status") as HTMLInputElement).addEventListener("change", statusListener);
+   (document.getElementById("status") as HTMLInputElement).addEventListener("input", imageListener);
+   (document.getElementById("save") as HTMLButtonElement).addEventListener("click", sendPizzaListener)
 }
 
+const renderToppings = () => {
+    const container = document.getElementById("toppings")as HTMLUListElement
+
+    container.innerHTML = ""
+    for (const topping of newPizza.ingredients) {
+        const content = `
+        <li>${topping}<button id= "${topping}">x</button></li>
+        `
+        container.innerHTML += content;
+ 
+    }
+
+    for (const topping of newPizza.ingredients) {
+        (document.getElementById(`${topping}`) as HTMLButtonElement).addEventListener("click", removeToppingListener)
+    }
+}
 
 //----------------------------------------EventListener-----------------------------------------------------------------------//
 const init = async () => {
@@ -94,27 +185,53 @@ const init = async () => {
     if (pizzas.length)
         renderList()
 
-    renderAddPizza()
-  };
+    renderAddPizzaButton()
+};
 
- const deleteListener = (event: Event) => {
+const deleteListener = (event: Event) => {
     const id = (event.target as HTMLButtonElement).id.split("-")[1]
     axios.delete(BASE_URL + "/admin/deletepizza/" + id)
   
     getAllPizza()
     if (pizzas.length)
         renderList()
- }
+};
 
-const addListener = () => {
-    
+const addToppingListener = () => {
+    const topping = (document.getElementById("topping-value") as HTMLInputElement).value
 
+    addTopping(topping)
+    renderToppings()
+};
+
+const removeToppingListener = (event:Event) => {
+    const topping = (event.target as HTMLButtonElement).id
+    removeTopping(topping)
+    renderToppings()
 }
 
+const nameListener = () => {
+    changePizzaName((document.getElementById("pizza-name") as HTMLInputElement).value)
+}
 
+const statusListener = (event:Event) => {
+   const status =(event.target as HTMLInputElement).checked
 
+   changeStatus(status)
+}
 
+const imageListener = (event:Event) => {
+    const image = (event.target as HTMLInputElement).files
+    
+    if (image) {
+        changeFile(image)
+    }
+}
 
+const sendPizzaListener = (event:Event) => {
+    addId()
+    console.log(newPizza)
+}
 
 init()
 

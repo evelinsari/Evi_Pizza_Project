@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="retro">
+<html lang="en" data-theme="wireframe">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
@@ -16,12 +16,15 @@
       <input type="file" id="file">
       <button id="add">Add</button>
     </div> -->
-    <div id="pizza-list">
+    <div class="flex flex-col gap-2" id="pizza-list">
 
     </div>
-    <div class="ml-4 gap-6" id="new-pizza">
-
+    <div id="add-block" class="ml-4 gap-6 ">
+      <button id="add-pizza" class="btn btn-secondary">Add New Pizza</button>
+      <div id="new-pizza">
+      </div>
     </div>
+
 
     <script type="module" src="/src/main.ts"></script>
   </body>
