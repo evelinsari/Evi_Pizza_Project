@@ -12,6 +12,17 @@
     "status": true
   },
   {
+    "id": 2,
+    "name": "Gorgonzola Pizza",
+    "ingredients": [
+      "gorgonzola",
+      "grape",
+      "parmesan"
+    ],
+    "url": "http://localhost:3333/img/gorgonzola.jpg",
+    "status": true
+  },
+  {
     "id": 3,
     "name": "Mushroom and Ricotta Pizza",
     "ingredients": [
@@ -72,18 +83,5 @@
     ],
     "url": "http://localhost:3333/img/goatcheese.jpg",
     "status": true
-  },
-  {
-    "id": 13,
-    "name": "Ham",
-    "ingredients": [
-      "tomato sauce",
-      "pepperoni",
-      "mozzarella",
-      "basil",
-      "ham"
-    ],
-    "url": "http://localhost:3333/img/ham.jpg",
-    "status": false
   }
 ]

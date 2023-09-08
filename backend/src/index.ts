@@ -75,7 +75,7 @@ server.post("/admin/addpizzaimage", async (req: Request, res: Response) => {
   if (!req.files) {
     return res.sendStatus(400)
   }
-  let file = req.files.file as UploadedFile
+  let file = req.files.picture as UploadedFile
   console.log(file)
   file.mv('./database/img/' + file.name);
   return res.sendStatus(200)
@@ -100,8 +100,16 @@ server.delete("/admin/deletepizza/:id",async (req: Request, res: Response) => {
   const id = +req.params.id
 
   let pizzas: Pizza[] = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
-  pizzas = pizzas.filter(pizza => pizza.id !== id)
 
+  const pizzaToDelete = pizzas.find(pizza => pizza.id === id)
+  if (pizzaToDelete){
+    const pictureUploadPath = "./database/img/" + pizzaToDelete.url.split("/")[pizzaToDelete.url.split("/").length-1]
+    if (fs.existsSync(pictureUploadPath)) {
+      fs.unlinkSync(pictureUploadPath)
+    }
+  }
+
+  pizzas = pizzas.filter(pizza => pizza.id !== id)
   fs.writeFileSync('./database/pizzaList.json', JSON.stringify(pizzas, null, 2), "utf-8")
 
   return res.send(pizzas)

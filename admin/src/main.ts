@@ -64,7 +64,6 @@ const changeFile = (file: FileList) =>{
     image = new FormData()
     image.append("picture", file[0])
     newPizza.url = file[0].name   
-    console.log(file[0].name)
 }
 
 const addId = () => {
@@ -83,7 +82,7 @@ const renderList = () => {
                 <div class="card-actions justify-end">
                     <button id="modify-${"" + pizza.id}" class="btn btn-primary">Modify</button>
                     <button id = "delete-${"" + pizza.id}" class="btn btn-circle btn-outline">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        X
                     </button>
                 </div>
             </div>
@@ -94,7 +93,7 @@ const renderList = () => {
       paragraph.innerHTML = content
       container.appendChild(paragraph);
       (document.getElementById(`delete-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", deleteListener);
-      /* (document.getElementById(`modify-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", selectListener) */
+      //(document.getElementById(`modify-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", selectListener)
       
     }
 }
@@ -143,8 +142,8 @@ const renderAddPizza = () => {
                                 </div>
                             </label>
                         </div>
-                        <input id="image" type="file" class="file-input file-input-bordered file-input-info w-full max-w-xs" />
-                        <button id= "save" class="btn btn-success btn-xs">Save</button>
+                        <input id="image" type="file" class="file-input file-input-bordered file-input-info w-full max-w-xs bg-secondary" />
+                        <button id= "save" class="btn btn-success btn-xs bg-secondary">Save</button>
                     </div>
                 </div>
             </div>
@@ -158,7 +157,7 @@ const renderAddPizza = () => {
    (document.getElementById("add-topping") as HTMLButtonElement).addEventListener("click", addToppingListener);
    (document.getElementById("pizza-name") as HTMLInputElement).addEventListener("change", nameListener);
    (document.getElementById("status") as HTMLInputElement).addEventListener("change", statusListener);
-   (document.getElementById("status") as HTMLInputElement).addEventListener("input", imageListener);
+   (document.getElementById("image") as HTMLInputElement).addEventListener("input", imageListener);
    (document.getElementById("save") as HTMLButtonElement).addEventListener("click", sendPizzaListener)
 }
 
@@ -179,6 +178,16 @@ const renderToppings = () => {
     }
 }
 
+const renderPizzaAdded = () => {
+    const container = document.getElementById("new-pizza")!
+    container.innerHTML = `
+        <div class="alert alert-success bg-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 bg-sec" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>Pizza added!</span>
+        </div>
+  `
+}
+
 //----------------------------------------EventListener-----------------------------------------------------------------------//
 const init = async () => {
     await getAllPizza();
@@ -188,11 +197,12 @@ const init = async () => {
     renderAddPizzaButton()
 };
 
-const deleteListener = (event: Event) => {
+const deleteListener = async (event: Event) => {
     const id = (event.target as HTMLButtonElement).id.split("-")[1]
-    axios.delete(BASE_URL + "/admin/deletepizza/" + id)
-  
-    getAllPizza()
+    
+    await axios.delete(BASE_URL + "/admin/deletepizza/" + id)
+    
+    await getAllPizza()
     if (pizzas.length)
         renderList()
 };
@@ -215,7 +225,7 @@ const nameListener = () => {
 }
 
 const statusListener = (event:Event) => {
-   const status =(event.target as HTMLInputElement).checked
+   const status = (event.target as HTMLInputElement).checked
 
    changeStatus(status)
 }
@@ -228,10 +238,27 @@ const imageListener = (event:Event) => {
     }
 }
 
-const sendPizzaListener = (event:Event) => {
+const sendPizzaListener = async () => {
     addId()
-    console.log(newPizza)
+
+    await axios.post(BASE_URL + "/admin/addpizza", newPizza);
+
+    await axios.post(BASE_URL + "/admin/addpizzaimage", image, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
+    });
+
+    await getAllPizza();
+    renderList()
+    renderPizzaAdded()
 }
+
+/* const selectListener = () => {
+    newPizza = pizzas.find(pizza => pizza.id === 5)!
+    console.log(newPizza)
+    renderAddPizza()
+} */
 
 init()
 
