@@ -11,17 +11,20 @@ const PizzaSchema = z.object ({
 
 type Pizza= z.infer<typeof PizzaSchema>
 
-type Order = {
-  name: string,
-  zipCode: string,
-  items: {
-    id: number,
-    amount: number
-  }[],
-  address: string,
-  email: string,
-  phone: string
-}
+const OrderSchema = z.object({
+  name: z.string(),
+  zipCode: z.string(),
+  items:z.object({
+    id: z.number(),
+    amount: z.number(),
+  }).array(),
+  address: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  status: z.boolean().optional()
+})
+
+type Order = z.infer<typeof OrderSchema>
 
 const BASE_URL = "http://localhost:3333"
 

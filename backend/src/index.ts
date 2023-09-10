@@ -30,18 +30,21 @@ const PizzaSchema = z.object ({
 
 type Pizza= z.infer<typeof PizzaSchema>
 
-type Order = {
-  name: string,
-  zipCode: string,
-  items: {
-    id: number,
-    amount: number
-  }[],
-  address: string,
-  email: string,
-  phone: string,
-  status?: boolean
-}
+const OrderSchema = z.object({
+  name: z.string(),
+  zipCode: z.string(),
+  items:z.object({
+    id: z.number(),
+    amount: z.number(),
+  }).array(),
+  address: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  status: z.boolean().optional()
+})
+
+type Order = z.infer<typeof OrderSchema>
+
 
 server.get("/pizzas", async (request: Request, response: Response) => {
 
@@ -170,6 +173,12 @@ server.patch("/admin/updatepizzaimage/:id", async (req: Request, res: Response) 
   return res.sendStatus(200)
 })
 
+
+server.get("/admin/orders", async (req: Request, res: Response)=> {
+    let orders: Order[] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
+  return res.send(orders)
+
+})
 
 
 server.listen(3333) 

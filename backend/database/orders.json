@@ -10,7 +10,8 @@
     ],
     "address": "Táncsics Mihály utca 100",
     "email": "fodi_peti@hotmail.com",
-    "phone": "+36306847957"
+    "phone": "+36306847957",
+    "status" : true
   },
   {
     "name": "Evelin",
@@ -22,7 +23,7 @@
       }
     ],
     "address": "eeee",
-    "email": "eee",
+    "email": "fodi_peti@hotmail.com",
     "phone": "1234567",
     "status": true
   }

@@ -13,7 +13,27 @@ const PizzaSchema = z.object ({
     status: z.boolean()
   })
 
-  type Pizza= z.infer<typeof PizzaSchema>
+  type Pizza = z.infer<typeof PizzaSchema>
+
+  const OrderSchema = z.object({
+    name: z.string(),
+    zipCode: z.string(),
+    items:z.object({
+      id: z.number(),
+      amount: z.number(),
+    }).array(),
+    address: z.string(),
+    email: z.string().email(),
+    phone: z.string(),
+    status: z.boolean().optional()
+  })
+  
+  type Order = z.infer<typeof OrderSchema>
+
+  type Item = {
+    id: number,
+    amount: number
+  }
 
 //----------------------------------------App state-----------------------------------------------------------------------//
 let pizzas: Pizza[];
@@ -21,6 +41,7 @@ let selectedPizza: Pizza = {id:NaN, name:"",ingredients:[],url:"", status:true}
 let isLoading = false
 let isSending = false
 let image : FormData | null = null
+let orders : Order[] = []
 
 
 
@@ -85,6 +106,19 @@ const selectPizza = (id:number) => {
     
 }
 
+const getAllOrder = async () => {
+    isLoading = true
+    const response =await axios.get(BASE_URL + "/admin/orders")
+    isLoading = false
+    const result = OrderSchema.array().safeParse(response.data)
+    console.log(response.data)
+    if (!result.success) {
+        orders = []
+    } else {
+        orders = result.data
+    }
+}
+
  //----------------------------------------Render-----------------------------------------------------------------------// 
 const renderList = () => {
     const container = document.getElementById("pizza-list")!
@@ -105,7 +139,6 @@ const renderList = () => {
         </div>
         `
         const paragraph = document.createElement("p")
-        paragraph.id = "pizza-" + pizza.id
         paragraph.innerHTML = content
         container.appendChild(paragraph);
         (document.getElementById(`delete-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", deleteListener);
@@ -232,9 +265,32 @@ const toppingOptions = ():string => {
     return content
 }
 
-/* const renderOrderButton = () => {
-    const container = document.getElementById()
-} */
+const renderOrderButton = () => {
+    const container = document.getElementById("orders-block")!
+    const content = `
+    <div>
+        <button id="show-orders" class="btn btn-secondary">List Orders</button> 
+        <button id="clear-orders" class="btn btn-secondary">Clear</button> 
+
+    </div>
+    <div id= "order-list"></div>
+    `
+    container.innerHTML = content;
+
+    (document.getElementById("show-orders") as HTMLButtonElement).addEventListener("click", renderOrdersListener);
+    (document.getElementById("clear-orders") as HTMLButtonElement).addEventListener("click", renderClearOrdersListener)
+} 
+
+const listItems = (items:Item[]):string => {
+    let content = ""
+    for (const item of items) {
+        let pizzaName = pizzas[pizzas.findIndex(pizza=> pizza.id === item.id)].name;
+        content += `
+        <li>${item.amount} x ${pizzaName}
+        </li> `
+    }
+    return content
+}
 
 //----------------------------------------EventListener-----------------------------------------------------------------------//
 const init = async () => {
@@ -243,7 +299,10 @@ const init = async () => {
         renderList()
 
     renderAddPizzaButton()
-    //renderOrderButton()
+    
+    await getAllOrder()
+    console.log(orders)
+    renderOrderButton()
 };
 
 const deleteListener = async (event: Event) => {
@@ -333,11 +392,42 @@ const modifyListener = (event:Event) => {
     renderAddPizza()
 }
 
-/* const selectListener = () => {
-    selectedPizza = pizzas.find(pizza => pizza.id === 5)!
-    console.log(selectedPizza)
-    renderAddPizza()
-} */
+const renderOrdersListener = () => {
+
+    const container = document.getElementById("order-list")!
+
+    for (const order of orders) {
+        const content = `
+        <div class="card w-96 bg-primary text-primary-content">
+            <div class="card-body">
+                <h2 class="card-title">${order.name}</h2>
+                <ul>
+                    ${listItems(order.items)}
+                </ul>
+                <div class="card-actions justify-end">
+                <div class="form-control">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">Closed</span> 
+                        <input type="checkbox" class="toggle" checked />
+                        <span class="label-text">Open</span>
+                    </label>
+                </div>
+                </div>
+            </div>
+        </div>
+     
+        `
+        const paragraph = document.createElement("p")
+        paragraph.innerHTML = content
+        container.appendChild(paragraph);
+    }
+       
+}
+
+const renderClearOrdersListener = () => {
+    const container = document.getElementById("order-list")!
+    container.innerHTML = ""
+}
 
 init()
 
