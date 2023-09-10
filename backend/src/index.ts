@@ -6,6 +6,7 @@ import { z } from "zod"
 import { UploadedFile } from "express-fileupload"
 import fileUpload from "express-fileupload"
 import multer from 'multer' 
+import { url } from "inspector"
 
 const server = express()
 /* const multer  = require('multer') */
@@ -133,7 +134,7 @@ server.patch("/admin/updatepizza/:id",async (req: Request, res: Response) => {
     id: result.data.id,
     name: result.data.name,
     ingredients: result.data.ingredients,
-    url: result.data.url,
+    url: pizza.url,
     status: result.data.status
   } : pizza)
 
@@ -142,6 +143,33 @@ server.patch("/admin/updatepizza/:id",async (req: Request, res: Response) => {
   return res.send(updatedPizzas)
 
 })
+
+server.patch("/admin/updatepizzaimage/:id", async (req: Request, res: Response) => {
+
+  if (!req.files) {
+    return res.sendStatus(400)
+  }
+
+  const id = +req.params.id
+  let pizzas: Pizza[] = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
+  let pizzaToUpdate = pizzas.find(pizza => pizza.id === id)
+
+  if (pizzaToUpdate){
+    const pictureUploadPath = "./database/img/" + pizzaToUpdate.url.split("/")[pizzaToUpdate.url.split("/").length-1]
+    if (fs.existsSync(pictureUploadPath)) {
+      fs.unlinkSync(pictureUploadPath)
+    }
+  }
+  
+  let file = req.files.picture as UploadedFile
+  console.log(file)
+  file.mv('./database/img/' + file.name);
+  let index = pizzas.findIndex(pizza => pizza.id === id)
+  pizzas[index].url = imgUrl + file.name
+  fs.writeFileSync('./database/pizzaList.json', JSON.stringify(pizzas, null, 2), "utf-8")
+  return res.sendStatus(200)
+})
+
 
 
 server.listen(3333) 

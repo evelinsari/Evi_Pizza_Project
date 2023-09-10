@@ -20,7 +20,7 @@
       "parmesan"
     ],
     "url": "http://localhost:3333/img/gorgonzola.jpg",
-    "status": true
+    "status": false
   },
   {
     "id": 3,
@@ -83,5 +83,17 @@
     ],
     "url": "http://localhost:3333/img/goatcheese.jpg",
     "status": true
+  },
+  {
+    "id": 8,
+    "name": "Mushroom and Ricotta Pizza",
+    "ingredients": [
+      "shiitake mushrooms",
+      "oyster mushrooms",
+      "ricotta",
+      "garlic"
+    ],
+    "url": "http://localhost:3333/img/mushroom.jpg",
+    "status": false
   }
 ]

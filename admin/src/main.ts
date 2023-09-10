@@ -17,11 +17,11 @@ const PizzaSchema = z.object ({
 
 //----------------------------------------App state-----------------------------------------------------------------------//
 let pizzas: Pizza[];
-let selectedPizza: Pizza | null = null;
-let newPizza: Pizza = {id:0, name:"", ingredients:[], url:"", status:true};
+let selectedPizza: Pizza = {id:NaN, name:"",ingredients:[],url:"", status:true}
 let isLoading = false
 let isSending = false
 let image : FormData | null = null
+
 
 
 
@@ -43,32 +43,48 @@ const getAllPizza = async () => {
   };
 
 const addTopping = (topping:string) => {
-    if (!newPizza.ingredients.includes(topping)) {
-        newPizza.ingredients.push(topping)
+    if (!selectedPizza.ingredients.includes(topping)) {
+        selectedPizza.ingredients.push(topping)
     }
 }
 
 const removeTopping = (topping: string) => {
-    newPizza.ingredients = newPizza.ingredients.filter(element => element !== topping)
+    selectedPizza.ingredients = selectedPizza.ingredients.filter(element => element !== topping)
 }
 
 const changePizzaName = (name:string) => {
-    newPizza.name = name
+    selectedPizza.name = name
 }
 
 const changeStatus = (status: boolean) => {
-    newPizza.status = status
+    selectedPizza.status = status
 }
 
 const changeFile = (file: FileList) =>{
     image = new FormData()
     image.append("picture", file[0])
-    newPizza.url = file[0].name   
+    selectedPizza.url = file[0].name   
 }
 
 const addId = () => {
-    newPizza.id = pizzas.reduce((maxIdPizza,currentPizza)=>maxIdPizza.id > currentPizza.id ? maxIdPizza : currentPizza).id + 1
+    selectedPizza.id = pizzas.reduce((maxIdPizza,currentPizza)=>maxIdPizza.id > currentPizza.id ? maxIdPizza : currentPizza).id + 1
 }
+
+const initNewPizza = () => {
+    selectedPizza = {id:NaN, name:"",
+                ingredients:[],
+                url:"", status:true
+                }
+}
+
+const selectPizza = (id:number) => {
+    const selectedPizzaOrNull = pizzas.find(pizza => pizza.id === id)
+    if (selectedPizzaOrNull) {
+        selectedPizza = selectedPizzaOrNull
+    }
+    
+}
+
  //----------------------------------------Render-----------------------------------------------------------------------// 
 const renderList = () => {
     const container = document.getElementById("pizza-list")!
@@ -88,12 +104,12 @@ const renderList = () => {
             </div>
         </div>
         `
-      const paragraph = document.createElement("p")
-      paragraph.id = "pizza-" + pizza.id
-      paragraph.innerHTML = content
-      container.appendChild(paragraph);
-      (document.getElementById(`delete-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", deleteListener);
-      //(document.getElementById(`modify-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", selectListener)
+        const paragraph = document.createElement("p")
+        paragraph.id = "pizza-" + pizza.id
+        paragraph.innerHTML = content
+        container.appendChild(paragraph);
+        (document.getElementById(`delete-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", deleteListener);
+        (document.getElementById(`modify-${"" + pizza.id}`) as HTMLButtonElement).addEventListener("click", modifyListener)
       
     }
 }
@@ -108,27 +124,23 @@ const renderAddPizzaButton = () => {
     `
     container.innerHTML = content;
 
-    (document.getElementById("add-pizza") as HTMLButtonElement).addEventListener("click", renderAddPizza)
+    (document.getElementById("add-pizza") as HTMLButtonElement).addEventListener("click", renderAddListener)
 }
 
 const renderAddPizza = () => {
    const container = document.getElementById("new-pizza")!
+
     const content = `
  
         <div class="card w-96 bg-base-100 shadow-xl">
             <div class="card-body">
                 <div class="card-actions justify-end">
                     <div class="form-control w-full max-w-xs">
-                        <input id= "pizza-name"type="text" placeholder="Pizza Name" class="input input-bordered w-full max-w-xs" />
+                        <input id= "pizza-name"type="text" placeholder="Pizza Name" class="input input-bordered w-full max-w-xs" value="${selectedPizza.name}" />
                         <div class="flex flex-row items-center">
                             <select id ="topping-value" class="select select-secondary w-full max-w-xs">
                                 <option disabled selected>Toppings</option>
-                                <option>tomato</option>
-                                <option>bacon</option>
-                                <option>gorgonzola</option>
-                                <option>cheese</option>
-                                <option>basil</option>
-                                <option>feta</option>
+                                ${toppingOptions()}
                             </select>
                             <button id="add-topping" class="btn btn-xs">Add</button>
                         </div>
@@ -142,7 +154,8 @@ const renderAddPizza = () => {
                                 </div>
                             </label>
                         </div>
-                        <input id="image" type="file" class="file-input file-input-bordered file-input-info w-full max-w-xs bg-secondary" />
+                        <img id="pizza-image" src="/src/placeholder.jpg" class= "h-80 w-80" >
+                        <input id="input-image" type="file" class="file-input file-input-bordered file-input-info w-full max-w-xs bg-secondary" />
                         <button id= "save" class="btn btn-success btn-xs bg-secondary">Save</button>
                     </div>
                 </div>
@@ -151,13 +164,31 @@ const renderAddPizza = () => {
     `
 
     container.innerHTML = content
+
+    if (selectedPizza.ingredients.length) {
+        renderToppings()
+    }
     ;
 
     
    (document.getElementById("add-topping") as HTMLButtonElement).addEventListener("click", addToppingListener);
    (document.getElementById("pizza-name") as HTMLInputElement).addEventListener("change", nameListener);
    (document.getElementById("status") as HTMLInputElement).addEventListener("change", statusListener);
-   (document.getElementById("image") as HTMLInputElement).addEventListener("input", imageListener);
+   (document.getElementById("input-image") as HTMLInputElement).addEventListener("input", imageListener);
+
+    const  imageElement = document.getElementById("pizza-image") as HTMLImageElement;
+    const pizzaInputPicture = document.getElementById("input-image") as HTMLInputElement;
+
+    if (selectedPizza.url) {
+        imageElement.src = selectedPizza.url
+    }
+
+    pizzaInputPicture.onchange = function () {
+    if (pizzaInputPicture.files) {
+        imageElement.src = URL.createObjectURL(pizzaInputPicture.files[0])
+    } 
+  };
+
    (document.getElementById("save") as HTMLButtonElement).addEventListener("click", sendPizzaListener)
 }
 
@@ -165,7 +196,7 @@ const renderToppings = () => {
     const container = document.getElementById("toppings")as HTMLUListElement
 
     container.innerHTML = ""
-    for (const topping of newPizza.ingredients) {
+    for (const topping of selectedPizza.ingredients) {
         const content = `
         <li>${topping}<button id= "${topping}">x</button></li>
         `
@@ -173,20 +204,37 @@ const renderToppings = () => {
  
     }
 
-    for (const topping of newPizza.ingredients) {
+    for (const topping of selectedPizza.ingredients) {
         (document.getElementById(`${topping}`) as HTMLButtonElement).addEventListener("click", removeToppingListener)
     }
 }
 
-const renderPizzaAdded = () => {
+const renderSuccess = ( alert: string) => {
     const container = document.getElementById("new-pizza")!
     container.innerHTML = `
         <div class="alert alert-success bg-secondary">
             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 bg-sec" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>Pizza added!</span>
+            <span>Pizza ${alert}!</span>
         </div>
   `
 }
+
+const toppingOptions = ():string => {
+    const allTopping = [ "tomato sauce","pepperoni","mozzarella","basil",  "gorgonzola","grape", "parmesan", "shiitake mushrooms","oyster mushrooms","ricotta","garlic", "bacon",
+    "onion", "rucola", "wild mushrooms","potato","burrata","rosemary", "pesto", "shallot", "pea","honey","goat cheese","feta", "shiitake mushrooms", "oyster mushrooms"]
+    let content = ""
+    
+    for (const topping of allTopping) {
+        content += `
+        <option>${topping}</option>
+        `
+    }
+    return content
+}
+
+/* const renderOrderButton = () => {
+    const container = document.getElementById()
+} */
 
 //----------------------------------------EventListener-----------------------------------------------------------------------//
 const init = async () => {
@@ -195,6 +243,7 @@ const init = async () => {
         renderList()
 
     renderAddPizzaButton()
+    //renderOrderButton()
 };
 
 const deleteListener = async (event: Event) => {
@@ -228,6 +277,7 @@ const statusListener = (event:Event) => {
    const status = (event.target as HTMLInputElement).checked
 
    changeStatus(status)
+   console.log(selectedPizza)
 }
 
 const imageListener = (event:Event) => {
@@ -239,24 +289,53 @@ const imageListener = (event:Event) => {
 }
 
 const sendPizzaListener = async () => {
-    addId()
+    if (Number.isNaN(selectedPizza.id)) {
+        addId()
 
-    await axios.post(BASE_URL + "/admin/addpizza", newPizza);
+        await axios.post(BASE_URL + "/admin/addpizza", selectedPizza);
+        
+        await axios.post(BASE_URL + "/admin/addpizzaimage", image, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            }
+        });
+    
+        await getAllPizza();
+        renderList()
+        renderSuccess("added") 
+        return 
+    }
+    console.log(selectedPizza)
 
-    await axios.post(BASE_URL + "/admin/addpizzaimage", image, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        }
-    });
+    if (image) {
+        await axios.patch(BASE_URL + "/admin/updatepizzaimage/" + selectedPizza.id, image, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            }
+        })
+     }
 
-    await getAllPizza();
-    renderList()
-    renderPizzaAdded()
+     await axios.patch(BASE_URL + "/admin/updatepizza/" + selectedPizza.id, selectedPizza)
+    
+     await getAllPizza();
+        renderList()
+        renderSuccess("updated")  
+    
+}
+
+const renderAddListener = () => {
+    initNewPizza()
+    renderAddPizza()
+}
+
+const modifyListener = (event:Event) => {
+    selectPizza(+(event.target as HTMLButtonElement).id.split("-")[1]) 
+    renderAddPizza()
 }
 
 /* const selectListener = () => {
-    newPizza = pizzas.find(pizza => pizza.id === 5)!
-    console.log(newPizza)
+    selectedPizza = pizzas.find(pizza => pizza.id === 5)!
+    console.log(selectedPizza)
     renderAddPizza()
 } */
 
@@ -266,42 +345,3 @@ init()
 
 //----------------------------------------EventListener-----------------------------------------------------------------------//
 
-/* const idInput = document.getElementById("id") as HTMLInputElement
-const nameInput = document.getElementById("name")as HTMLInputElement
-const ingredientsInput = document.getElementById("ingredients")as HTMLInputElement
-const urlInput = document.getElementById("url") as HTMLInputElement
-const statusInput = document.getElementById("status") as HTMLInputElement
-const fileInput = document.getElementById("file") as HTMLInputElement
-
-
-async function createData() {
-    const data = new FormData()
-    data.append("id", idInput.value)
-    data.append("name", nameInput.value)
-    const ingredientsArray = ingredientsInput.value.split(',').map(ingredient => ingredient.trim());
-    data.append("ingredients", JSON.stringify(ingredientsArray))
-    data.append("url", urlInput.value)
-    data.append("status", statusInput.value)
-    const input = fileInput.files
-    if (!input) return null
-    data.append("file", input[0])
-
-    return data 
-}
-
-const sendData = async function (data: FormData) {
-    console.log("bent")
-    const response = await axios.post(BASE_URL + "/admin/addpizza", data , {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-    })
-}
-
-document.getElementById("add")?.addEventListener("click", async () => {
-    const data = await createData();
-    if (data) {
-        sendData(data);
-    }
-})
- */
