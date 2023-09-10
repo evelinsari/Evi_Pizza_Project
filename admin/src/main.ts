@@ -25,7 +25,7 @@ const PizzaSchema = z.object ({
     address: z.string(),
     email: z.string().email(),
     phone: z.string(),
-    status: z.boolean().optional()
+    status: z.boolean()
   })
   
   type Order = z.infer<typeof OrderSchema>
@@ -42,6 +42,7 @@ let isLoading = false
 let isSending = false
 let image : FormData | null = null
 let orders : Order[] = []
+let filter = true 
 
 
 
@@ -77,7 +78,7 @@ const changePizzaName = (name:string) => {
     selectedPizza.name = name
 }
 
-const changeStatus = (status: boolean) => {
+const changePizzaStatus = (status: boolean) => {
     selectedPizza.status = status
 }
 
@@ -118,6 +119,15 @@ const getAllOrder = async () => {
         orders = result.data
     }
 }
+
+const changeOrderStatus = (email:string, status:boolean) => {
+    orders[orders.findIndex(order => order.email === email)].status = status
+}
+
+const changeFilter = () => {
+    filter = !filter
+}
+
 
  //----------------------------------------Render-----------------------------------------------------------------------// 
 const renderList = () => {
@@ -183,7 +193,7 @@ const renderAddPizza = () => {
                             <label class="cursor-pointer label">
                                 <span class="label-text">Status</span> 
                                 <div>
-                                    <input id="status" type="checkbox" class="toggle toggle-secondary" checked />  
+                                    <input id="status" type="checkbox" class="toggle toggle-secondary" ${selectedPizza.status ? "checked" : "unchecked"} />  
                                 </div>
                             </label>
                         </div>
@@ -271,14 +281,15 @@ const renderOrderButton = () => {
     <div>
         <button id="show-orders" class="btn btn-secondary">List Orders</button> 
         <button id="clear-orders" class="btn btn-secondary">Clear</button> 
-
+        <button id="filter-orders" class="btn btn-secondary">Filter</button>
     </div>
     <div id= "order-list"></div>
     `
     container.innerHTML = content;
 
     (document.getElementById("show-orders") as HTMLButtonElement).addEventListener("click", renderOrdersListener);
-    (document.getElementById("clear-orders") as HTMLButtonElement).addEventListener("click", renderClearOrdersListener)
+    (document.getElementById("clear-orders") as HTMLButtonElement).addEventListener("click", renderClearOrdersListener);
+    (document.getElementById("filter-orders") as HTMLButtonElement).addEventListener("click", renderFilteredOrdersListener)
 } 
 
 const listItems = (items:Item[]):string => {
@@ -335,7 +346,7 @@ const nameListener = () => {
 const statusListener = (event:Event) => {
    const status = (event.target as HTMLInputElement).checked
 
-   changeStatus(status)
+   changePizzaStatus(status)
    console.log(selectedPizza)
 }
 
@@ -392,9 +403,12 @@ const modifyListener = (event:Event) => {
     renderAddPizza()
 }
 
-const renderOrdersListener = () => {
+const renderOrdersListener = (event?:Event) => {
+
 
     const container = document.getElementById("order-list")!
+
+    container.innerHTML = ""
 
     for (const order of orders) {
         const content = `
@@ -408,7 +422,7 @@ const renderOrdersListener = () => {
                 <div class="form-control">
                     <label class="label cursor-pointer">
                         <span class="label-text">Closed</span> 
-                        <input type="checkbox" class="toggle" checked />
+                        <input id="status-change-${order.email}" type="checkbox" class="toggle" ${order.status ? "checked" : "unchecked"}/>
                         <span class="label-text">Open</span>
                     </label>
                 </div>
@@ -419,14 +433,45 @@ const renderOrdersListener = () => {
         `
         const paragraph = document.createElement("p")
         paragraph.innerHTML = content
-        container.appendChild(paragraph);
-    }
+        if (logicFunction(order.status, event)) {
+            container.appendChild(paragraph);
+            (document.getElementById(`status-change-${order.email}`))!.addEventListener("change", changeStatusListener)
+        }
        
+    }
+    
 }
 
 const renderClearOrdersListener = () => {
     const container = document.getElementById("order-list")!
     container.innerHTML = ""
+}
+
+const changeStatusListener = async (event:Event) =>  {
+    const email = (event.target as HTMLInputElement).id.split("-")[(event.target as HTMLInputElement).id.split("-").length - 1]
+
+    const status = (event.target as HTMLInputElement).checked
+    changeOrderStatus(email, status)
+    
+    await axios.patch(BASE_URL + "/admin/updatestatus/" + email)
+}
+
+const renderFilteredOrdersListener = () => {
+    const container = document.getElementById("order-list")!
+    container.innerHTML = ""
+
+    renderOrdersListener()
+    changeFilter()
+    
+}
+
+const logicFunction = (status:boolean, event?:Event) => {
+    if (event) {
+        if ((event.target as HTMLButtonElement).id === "show-orders") {
+            return true
+        }
+    } 
+    return status === filter
 }
 
 init()

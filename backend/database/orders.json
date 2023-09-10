@@ -11,20 +11,34 @@
     "address": "Táncsics Mihály utca 100",
     "email": "fodi_peti@hotmail.com",
     "phone": "+36306847957",
-    "status" : true
+    "status": true
   },
   {
-    "name": "Evelin",
-    "zipCode": "1234",
+    "name": "Teszt",
+    "zipCode": "2360",
     "items": [
       {
-        "id": 1,
-        "amount": 2
+        "id": 6,
+        "amount": 3
       }
     ],
-    "address": "eeee",
-    "email": "fodi_peti@hotmail.com",
-    "phone": "1234567",
+    "address": "Táncsics Mihály utca 100",
+    "email": "peti@hotmail.com",
+    "phone": "+36306847957",
+    "status": false
+  },
+  {
+    "name": "Teszt2",
+    "zipCode": "2360",
+    "items": [
+      {
+        "id": 6,
+        "amount": 3
+      }
+    ],
+    "address": "Táncsics Mihály utca 100",
+    "email": "ti@hotmail.com",
+    "phone": "+36306847957",
     "status": true
   }
 ]

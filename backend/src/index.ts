@@ -180,5 +180,16 @@ server.get("/admin/orders", async (req: Request, res: Response)=> {
 
 })
 
+server.patch("/admin/updatestatus/:email",async (req: Request, res: Response) => {
+ 
+  const email = req.params.email
+
+  let updatedOrders: Order[] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
+  updatedOrders[updatedOrders.findIndex(order => order.email === email)].status = !updatedOrders[updatedOrders.findIndex(order => order.email === email)].status
+  fs.writeFileSync('./database/orders.json', JSON.stringify(updatedOrders, null, 2), "utf-8")
+
+  return res.sendStatus(200)
+})
+
 
 server.listen(3333) 

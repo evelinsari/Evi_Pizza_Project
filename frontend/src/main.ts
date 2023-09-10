@@ -94,6 +94,12 @@ const removeItemFromOrder = function(id:number) {
   }
 }
 
+const changeName = (name:string) => {
+  order = order ? {name, zipCode: order.zipCode, items: order.items, address: order.address, email:order.email, phone: order.phone} : null
+}
+
+
+
 //render
 function renderList(pizzas: Pizza[]) {
   const container = document.getElementById("list")!
@@ -205,11 +211,11 @@ const sendOrder = async function() {
 }
 
 const addNameDetails = (event:Event) => {
-  order!.name = (event.target as HTMLInputElement).value
+    changeName((event.target as HTMLInputElement).value)
 }
 
 const addZipDetails = (event:Event) => {
-  order!.zipCode = (event.target as HTMLInputElement).value
+  order!.zipCode  = ((event.target as HTMLInputElement).value)
 }
 
 const addAddressDetails = (event:Event) => {
