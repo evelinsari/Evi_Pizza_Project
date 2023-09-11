@@ -107,17 +107,18 @@ function renderList(pizzas: Pizza[]) {
   for (const pizza of pizzas) {
     const paragraph = document.createElement("p")
     paragraph.id = "" + pizza.id
-    paragraph.innerText = pizza.name
+    paragraph.className = "btn  h-20 w-80"
+    paragraph.innerHTML = pizza.name
     container.appendChild(paragraph)
     paragraph.addEventListener("click", selectListener)
-    
+   
   }
 }
 
 const renderSelected = function(pizza: Pizza) {
   const content = `
       <div class="card card-compact w-96 bg-base-100 shadow-xl">
-        <figure><img src="${pizza.url}" alt="pizza" /></figure>
+        <figure><img src="${pizza.url}" alt="pizza" class="h-80 w-80" /></figure>
         <div class="card-body">
           <h2 class="card-title">${pizza.name}</h2>
           <p>${pizza.ingredients}</p>
@@ -137,18 +138,20 @@ const renderSelected = function(pizza: Pizza) {
 
 const renderOrder = function(order: Order) {
   const content = `
-    <div id=order2>
-      <h1>Your order</h1>
+    <div class="card w-96 bg-base-100 shadow-xl p-8 gap-4" id=order2>
+      <h1 class="font-bold text-lg">Your order</h1>
       ${order.items.map(order => `
+        <div class="flex flex-row gap-4">
         <p id="details">${order.amount} x ${pizzas.find(pizza => order.id === pizza.id)!.name} </p>
-        <button id ="deleteItem_${order.id}">x</button>`
+        <button  class="btn btn-circle btn-outline btn-xs" id ="deleteItem_${order.id}">x</button>
+        </div>`
       )}
       <input id="name" placeholder="Name" value="${order.name}">
       <input id="zipCode" placeholder="Zip code" value="${order.zipCode}">
       <input id="address" placeholder="Address" value="${order.address}">
       <input id="email" placeholder="Email" value="${order.email}">
       <input id="phone" placeholder="Phone" value="${order.phone}">
-      <button id="sendOrder">Send order</button>
+      <button class="btn btn-success" id="sendOrder">Send order</button>
     </div>
   `
 

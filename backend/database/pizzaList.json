@@ -12,17 +12,6 @@
     "status": true
   },
   {
-    "id": 2,
-    "name": "Gorgonzola Pizza",
-    "ingredients": [
-      "gorgonzola",
-      "grape",
-      "parmesan"
-    ],
-    "url": "http://localhost:3333/img/gorgonzola.jpg",
-    "status": false
-  },
-  {
     "id": 3,
     "name": "Mushroom and Ricotta Pizza",
     "ingredients": [
@@ -49,7 +38,7 @@
   },
   {
     "id": 5,
-    "name": "Potato and Wild Mushroom Burrata Pizza",
+    "name": "Potato & Wild Mushroom Burrata ",
     "ingredients": [
       "wild mushrooms",
       "potato",

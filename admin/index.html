@@ -1,29 +1,22 @@
 <!doctype html>
-<html lang="en" data-theme="wireframe">
+<html lang="en" data-theme="retro">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <link rel="stylesheet" href="src/style.css">
+    <title>Pizza Project</title>
   </head>
-  <body class="flex flex-row">
-    <!-- <div>
-      <input type="text" id="id">
-      <input type="text" id="name">
-      <input type="text" id="ingredients">
-      <input type="text" id="url">
-      <input type="text" id="status">
-      <input type="file" id="file">
-      <button id="add">Add</button>
-    </div> -->
-    <div class="flex flex-col gap-2" id="pizza-list">
-    </div>
-    <div id="add-block" class="ml-4 gap-6 ">
-      <button id="add-pizza" class="btn btn-secondary">Add New Pizza</button>
-      <div id="new-pizza">
+  <body>
+    <div class="flex flex-row justify-between mr-8 mt-8 ml-8">
+      <div class="flex flex-row justify-between gap-8">
+        <div class="flex flex-col gap-2" id="pizza-list"></div>
+        <div id="add-block" class="ml-4 w-96">
+          <button id="add-pizza" class="btn btn-secondary ">Add New Pizza</button>
+          <div id="new-pizza"></div>
+        </div>
       </div>
-    </div>
-    <div id= "orders-block">
+      <div  id= "orders-block"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

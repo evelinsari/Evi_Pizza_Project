@@ -2,7 +2,6 @@ import "./style.css";
 import axios from "axios";
 import { z } from "zod";
 
-
 const BASE_URL = "http://localhost:3333"
 
 const PizzaSchema = z.object ({
@@ -43,11 +42,6 @@ let isSending = false
 let image : FormData | null = null
 let orders : Order[] = []
 let filter = true 
-
-
-
-
-
 
 //----------------------------------------Mutation-----------------------------------------------------------------------//
 
@@ -136,11 +130,11 @@ const renderList = () => {
 
     for (const pizza of pizzas) {
         const content = `
-        <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card w-96 bg-base-100 shadow-xl card-bordered">
             <div class="card-body">
                 <h2 class="card-title">${pizza.name}</h2>
                 <div class="card-actions justify-end">
-                    <button id="modify-${"" + pizza.id}" class="btn btn-primary">Modify</button>
+                    <button id="modify-${"" + pizza.id}" class="btn btn-secondary">Modify</button>
                     <button id = "delete-${"" + pizza.id}" class="btn btn-circle btn-outline">
                         X
                     </button>
@@ -175,31 +169,30 @@ const renderAddPizza = () => {
 
     const content = `
  
-        <div class="card w-96 bg-base-100 shadow-xl">
-            <div class="card-body">
+        <div class="card w-96 bg-base-100 shadow-xl card-bordered">
+            <div class="flex card-body">
                 <div class="card-actions justify-end">
-                    <div class="form-control w-full max-w-xs">
+                    <div class="form-control w-full max-w-xs   gap-4">
                         <input id= "pizza-name"type="text" placeholder="Pizza Name" class="input input-bordered w-full max-w-xs" value="${selectedPizza.name}" />
                         <div class="flex flex-row items-center">
                             <select id ="topping-value" class="select select-secondary w-full max-w-xs">
                                 <option disabled selected>Toppings</option>
                                 ${toppingOptions()}
                             </select>
-                            <button id="add-topping" class="btn btn-xs">Add</button>
+                            <button id="add-topping" class="btn btn-xs btn-secondary">Add</button>
                         </div>
-                        <ul id="toppings" class="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box">
+                        <ul id="toppings" class="menu menu-vertical lg:menu-horizontal  rounded-box">
                         </ul>
-                        <div class="form-control w-52">
-                            <label class="cursor-pointer label">
-                                <span class="label-text">Status</span> 
-                                <div>
-                                    <input id="status" type="checkbox" class="toggle toggle-secondary" ${selectedPizza.status ? "checked" : "unchecked"} />  
-                                </div>
+                        <div class="form-control ">
+                            <label class="flex flex-row cursor-pointer label justify-center gap-4">
+                                <span class="label-text">Inactive</span> 
+                                <input id="status" type="checkbox" class="toggle toggle-secondary" ${selectedPizza.status ? "checked" : "unchecked"} />  
+                                <span class="label-text">Active</span>
                             </label>
                         </div>
                         <img id="pizza-image" src="/src/placeholder.jpg" class= "h-80 w-80" >
-                        <input id="input-image" type="file" class="file-input file-input-bordered file-input-info w-full max-w-xs bg-secondary" />
-                        <button id= "save" class="btn btn-success btn-xs bg-secondary">Save</button>
+                        <input id="input-image" type="file" class="file-input   file-input-secondary file-input-bordered  w-full max-w-xs " />
+                        <button id= "save" class="btn btn-secondary btn-s bg-secondary">Save</button>
                     </div>
                 </div>
             </div>
@@ -241,7 +234,7 @@ const renderToppings = () => {
     container.innerHTML = ""
     for (const topping of selectedPizza.ingredients) {
         const content = `
-        <li>${topping}<button id= "${topping}">x</button></li>
+        <li class ="flex flex-row items-center">${topping}<button id= "${topping}">x</button></li>
         `
         container.innerHTML += content;
  
@@ -278,12 +271,12 @@ const toppingOptions = ():string => {
 const renderOrderButton = () => {
     const container = document.getElementById("orders-block")!
     const content = `
-    <div>
+    <div class="w-96" >
         <button id="show-orders" class="btn btn-secondary">List Orders</button> 
         <button id="clear-orders" class="btn btn-secondary">Clear</button> 
         <button id="filter-orders" class="btn btn-secondary">Filter</button>
     </div>
-    <div id= "order-list"></div>
+    <div  class="overflow-x-auto" id= "order-list"></div>
     `
     container.innerHTML = content;
 
@@ -303,6 +296,41 @@ const listItems = (items:Item[]):string => {
     return content
 }
 
+const renderOrders = (id?: string) => {
+    const container = document.getElementById("order-list")!
+
+    container.innerHTML = ""
+
+    for (const order of orders) {
+        const content = `
+        <div class="card w-80 bg-base-300 card-compact text-primary-content card-bordered">
+            <div class="card-body">
+                <h2 class="card-title">${order.name}</h2>
+                <ul>
+                    ${listItems(order.items)}
+                </ul>
+                <div class="card-actions justify-end">
+                <div class="form-control">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">Closed</span> 
+                        <input id="status-change-${order.email}" type="checkbox" class="toggle" ${order.status ? "checked" : "unchecked"}/>
+                        <span class="label-text">Open</span>
+                    </label>
+                </div>
+                </div>
+            </div>
+        </div>
+     
+        `
+        const paragraph = document.createElement("p")
+        paragraph.innerHTML = content
+        if (logicFunction(order.status, id)) {
+            container.appendChild(paragraph);
+            (document.getElementById(`status-change-${order.email}`))!.addEventListener("change", changeStatusListener)
+        }
+       
+    }
+}
 //----------------------------------------EventListener-----------------------------------------------------------------------//
 const init = async () => {
     await getAllPizza();
@@ -318,9 +346,11 @@ const init = async () => {
 
 const deleteListener = async (event: Event) => {
     const id = (event.target as HTMLButtonElement).id.split("-")[1]
-    
+
+    isSending = true
     await axios.delete(BASE_URL + "/admin/deletepizza/" + id)
-    
+    isSending = false
+
     await getAllPizza()
     if (pizzas.length)
         renderList()
@@ -362,21 +392,23 @@ const sendPizzaListener = async () => {
     if (Number.isNaN(selectedPizza.id)) {
         addId()
 
+        isSending = true
         await axios.post(BASE_URL + "/admin/addpizza", selectedPizza);
-        
         await axios.post(BASE_URL + "/admin/addpizzaimage", image, {
             headers: {
               "Content-Type": "multipart/form-data",
             }
         });
-    
+        isSending = false
+
         await getAllPizza();
+
         renderList()
         renderSuccess("added") 
         return 
     }
-    console.log(selectedPizza)
 
+    isSending = true
     if (image) {
         await axios.patch(BASE_URL + "/admin/updatepizzaimage/" + selectedPizza.id, image, {
             headers: {
@@ -386,10 +418,12 @@ const sendPizzaListener = async () => {
      }
 
      await axios.patch(BASE_URL + "/admin/updatepizza/" + selectedPizza.id, selectedPizza)
-    
+     isSending = false
+
      await getAllPizza();
-        renderList()
-        renderSuccess("updated")  
+
+    renderList()
+    renderSuccess("updated")  
     
 }
 
@@ -405,40 +439,7 @@ const modifyListener = (event:Event) => {
 
 const renderOrdersListener = (event?:Event) => {
 
-
-    const container = document.getElementById("order-list")!
-
-    container.innerHTML = ""
-
-    for (const order of orders) {
-        const content = `
-        <div class="card w-96 bg-primary text-primary-content">
-            <div class="card-body">
-                <h2 class="card-title">${order.name}</h2>
-                <ul>
-                    ${listItems(order.items)}
-                </ul>
-                <div class="card-actions justify-end">
-                <div class="form-control">
-                    <label class="label cursor-pointer">
-                        <span class="label-text">Closed</span> 
-                        <input id="status-change-${order.email}" type="checkbox" class="toggle" ${order.status ? "checked" : "unchecked"}/>
-                        <span class="label-text">Open</span>
-                    </label>
-                </div>
-                </div>
-            </div>
-        </div>
-     
-        `
-        const paragraph = document.createElement("p")
-        paragraph.innerHTML = content
-        if (logicFunction(order.status, event)) {
-            container.appendChild(paragraph);
-            (document.getElementById(`status-change-${order.email}`))!.addEventListener("change", changeStatusListener)
-        }
-       
-    }
+    renderOrders(event?(event.target as HTMLButtonElement).id : "")
     
 }
 
@@ -453,7 +454,9 @@ const changeStatusListener = async (event:Event) =>  {
     const status = (event.target as HTMLInputElement).checked
     changeOrderStatus(email, status)
     
+    isSending = true
     await axios.patch(BASE_URL + "/admin/updatestatus/" + email)
+    isSending = false
 }
 
 const renderFilteredOrdersListener = () => {
@@ -465,9 +468,9 @@ const renderFilteredOrdersListener = () => {
     
 }
 
-const logicFunction = (status:boolean, event?:Event) => {
-    if (event) {
-        if ((event.target as HTMLButtonElement).id === "show-orders") {
+const logicFunction = (status:boolean, id?: string) => {
+    if (id) {
+        if (id === "show-orders") {
             return true
         }
     } 
