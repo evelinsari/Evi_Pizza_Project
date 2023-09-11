@@ -5,14 +5,10 @@ import fs from "fs"
 import { z } from "zod"
 import { UploadedFile } from "express-fileupload"
 import fileUpload from "express-fileupload"
-import multer from 'multer' 
-import { url } from "inspector"
 
 const server = express()
-/* const multer  = require('multer') */
 
 server.use(fileUpload())
-/* server.use(multer()) */
 server.use(express.static("database"))
 server.use(express.json())
 server.use(cors())
@@ -28,7 +24,7 @@ const PizzaSchema = z.object ({
 })
 
 
-type Pizza= z.infer<typeof PizzaSchema>
+type Pizza = z.infer<typeof PizzaSchema>
 
 const OrderSchema = z.object({
   name: z.string(),
@@ -53,25 +49,21 @@ server.get("/pizzas", async (request: Request, response: Response) => {
 })
 
 server.post('/pizza/order', async (req: Request, res: Response) => {
-  console.log("headers: " + JSON.stringify(req.headers))
-  console.log("url: " + req.url)
-  console.log("body: " + JSON.stringify(req.body))    
-  console.log("params: " + JSON.stringify(req.params))
-  console.log("query: " + JSON.stringify(req.query))
-  console.log("method: " + req.method)
-  const fileData: Order = req.body
-  fileData.status = true
-  // zod
+  const result = OrderSchema.safeParse(req.body)
+  if(!result.success)
+    return res.sendStatus(400)
+
+    const fileData = result.data
+    fileData.status = true
   
   try {
-    const orders: Order [] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
+    const orders: Order[] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
     orders.push(fileData)
     fs.writeFileSync('./database/orders.json', JSON.stringify(orders, null, 2), "utf-8")
 
-    res.send(fileData)
+    return res.send(fileData)
   } catch (error) {
-    console.error('Error writing to file:', error)
-    res.status(500).send('Error writing to file')
+     return res.status(500).send('Error writing to file')
   }
 })
 
@@ -79,13 +71,14 @@ server.post("/admin/addpizzaimage", async (req: Request, res: Response) => {
   if (!req.files) {
     return res.sendStatus(400)
   }
-  let file = req.files.picture as UploadedFile
-  console.log(file)
+
+  const file = req.files.picture as UploadedFile
   file.mv('./database/img/' + file.name);
+
   return res.sendStatus(200)
 })
 
-server.post("/admin/addpizza",async (req: Request, res: Response) => {
+server.post("/admin/addpizza", async (req: Request, res: Response) => {
   const result = PizzaSchema.safeParse(req.body)
   if (!result.success)
     return res.sendStatus(400)
@@ -129,7 +122,7 @@ server.patch("/admin/updatepizza/:id",async (req: Request, res: Response) => {
 
   let pizzas: Pizza[] = await JSON.parse(fs.readFileSync('database/pizzaList.json', 'utf-8'))
   let pizzaToUpdate = pizzas.find(pizza => pizza.id === id)
-  console.log(pizzaToUpdate)
+
   if (!pizzaToUpdate)
     return res.sendStatus(404)
 
@@ -165,7 +158,7 @@ server.patch("/admin/updatepizzaimage/:id", async (req: Request, res: Response) 
   }
   
   let file = req.files.picture as UploadedFile
-  console.log(file)
+
   file.mv('./database/img/' + file.name);
   let index = pizzas.findIndex(pizza => pizza.id === id)
   pizzas[index].url = imgUrl + file.name
@@ -175,9 +168,9 @@ server.patch("/admin/updatepizzaimage/:id", async (req: Request, res: Response) 
 
 
 server.get("/admin/orders", async (req: Request, res: Response)=> {
-    let orders: Order[] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
-  return res.send(orders)
+  let orders: Order[] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
 
+  return res.send(orders)
 })
 
 server.patch("/admin/updatestatus/:email",async (req: Request, res: Response) => {
@@ -185,7 +178,10 @@ server.patch("/admin/updatestatus/:email",async (req: Request, res: Response) =>
   const email = req.params.email
 
   let updatedOrders: Order[] = await JSON.parse(fs.readFileSync('database/orders.json', 'utf-8'))
-  updatedOrders[updatedOrders.findIndex(order => order.email === email)].status = !updatedOrders[updatedOrders.findIndex(order => order.email === email)].status
+
+  const id = updatedOrders.findIndex(order => order.email === email)
+  updatedOrders[id].status = !updatedOrders[id].status
+
   fs.writeFileSync('./database/orders.json', JSON.stringify(updatedOrders, null, 2), "utf-8")
 
   return res.sendStatus(200)

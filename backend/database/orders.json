@@ -96,17 +96,39 @@
     "status": true
   },
   {
-    "name": "",
-    "zipCode": "",
+    "name": "Fodor Péter",
+    "zipCode": "2360",
     "items": [
       {
-        "id": 4,
+        "id": 1,
         "amount": 1
+      },
+      {
+        "id": 4,
+        "amount": 2
       }
     ],
-    "address": "",
-    "email": "",
-    "phone": "",
+    "address": "Táncsics Mihály utca 100",
+    "email": "fodi_peti2222@hotmail.com",
+    "phone": "+36306847957",
+    "status": true
+  },
+  {
+    "name": "Fodor Péter",
+    "zipCode": "2360",
+    "items": [
+      {
+        "id": 1,
+        "amount": 1
+      },
+      {
+        "id": 4,
+        "amount": 2
+      }
+    ],
+    "address": "Táncsics Mihály utca 100",
+    "email": "fodi_peti2323@hotmail.com",
+    "phone": "+36306847957",
     "status": true
   }
 ]

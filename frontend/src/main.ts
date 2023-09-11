@@ -138,14 +138,9 @@ const renderSelected = function(pizza: Pizza) {
 
 const renderOrder = function(order: Order) {
   const content = `
-    <div class="card w-96 bg-base-100 shadow-xl p-8 gap-4" id=order2>
+    <div class="card w-96 bg-base-100 shadow-xl p-8 gap-4" id=order>
       <h1 class="font-bold text-lg">Your order</h1>
-      ${order.items.map(order => `
-        <div class="flex flex-row gap-4">
-        <p id="details">${order.amount} x ${pizzas.find(pizza => order.id === pizza.id)!.name} </p>
-        <button  class="btn btn-circle btn-outline btn-xs" id ="deleteItem_${order.id}">x</button>
-        </div>`
-      )}
+      ${renderItems(order)}
       <input id="name" placeholder="Name" value="${order.name}">
       <input id="zipCode" placeholder="Zip code" value="${order.zipCode}">
       <input id="address" placeholder="Address" value="${order.address}">
@@ -154,7 +149,7 @@ const renderOrder = function(order: Order) {
       <button class="btn btn-success" id="sendOrder">Send order</button>
     </div>
   `
-
+  
   document.getElementById("order")!.innerHTML = content
 
   for (const orderID of order.items) {
@@ -168,6 +163,21 @@ const renderOrder = function(order: Order) {
   (document.getElementById("email") as HTMLButtonElement).addEventListener("change", addEmailDetails);
   (document.getElementById("phone") as HTMLButtonElement).addEventListener("change", addPhoneDetails);
 
+}
+
+const renderItems = (order:Order):string => {
+  let result = ""
+
+  for (const item of order.items) {
+    result += `
+    <div class="flex flex-row gap-4">
+    <p id="details">${item.amount} x ${pizzas.find(pizza => item.id === pizza.id)!.name} </p>
+    <button class="btn btn-circle btn-outline btn-xs" id ="deleteItem_${item.id}">x</button>
+    </div>
+    `
+  }
+
+  return result
 }
 
 // eventListeners

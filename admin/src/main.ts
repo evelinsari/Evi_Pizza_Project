@@ -105,8 +105,8 @@ const getAllOrder = async () => {
     isLoading = true
     const response =await axios.get(BASE_URL + "/admin/orders")
     isLoading = false
+    
     const result = OrderSchema.array().safeParse(response.data)
-    console.log(response.data)
     if (!result.success) {
         orders = []
     } else {
@@ -340,7 +340,6 @@ const init = async () => {
     renderAddPizzaButton()
     
     await getAllOrder()
-    console.log(orders)
     renderOrderButton()
 };
 
@@ -377,7 +376,6 @@ const statusListener = (event:Event) => {
    const status = (event.target as HTMLInputElement).checked
 
    changePizzaStatus(status)
-   console.log(selectedPizza)
 }
 
 const imageListener = (event:Event) => {
@@ -439,7 +437,7 @@ const modifyListener = (event:Event) => {
 
 const renderOrdersListener = (event?:Event) => {
 
-    renderOrders(event?(event.target as HTMLButtonElement).id : "")
+    renderOrders(event ? (event.target as HTMLButtonElement).id : "")
     
 }
 
